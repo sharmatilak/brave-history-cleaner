@@ -16,23 +16,16 @@ A Manifest V3 browser extension that automatically removes browsing history for 
 
 1. [Why?](#why)
 2. [Features](#features)
-3. [Screenshots](#screenshots)
-4. [Installation](#installation)
-5. [Usage](#usage)
-6. [How It Works](#how-it-works)
-7. [File Structure](#file-structure)
-8. [Architecture](#architecture)
-9. [Permissions Explained](#permissions-explained)
-10. [Storage Schema](#storage-schema)
-11. [Behavior Matrix](#behavior-matrix)
-12. [Configuration & Tuning](#configuration--tuning)
-13. [Troubleshooting](#troubleshooting)
-14. [Development Notes](#development-notes)
-15. [Limitations](#limitations)
-16. [FAQ](#faq)
-17. [Changelog](#changelog)
-18. [Contributing](#contributing)
-19. [License](#license)
+3. [Installation](#installation)
+4. [Usage](#usage)
+5. [How It Works](#how-it-works)
+6. [Permissions Explained](#permissions-explained)
+7. [Configuration & Tuning](#configuration--tuning)
+8. [Troubleshooting](#troubleshooting)
+9. [Limitations](#limitations)
+10. [FAQ](#faq)
+11. [Contributing](#contributing)
+12. [License](#license)
 
 ---
 
@@ -62,16 +55,6 @@ Everything else about your browser stays untouched — cookies, cache, passwords
 - ✅ **No telemetry, no network calls** — everything runs locally
 - ✅ **MV3-safe** — uses `chrome.storage.local` and `chrome.alarms`, not the unreliable `chrome.storage.session` or `onSuspend`
 - ✅ **Zero dependencies** — pure JavaScript, no build step, no bundler
-
----
-
-## Screenshots
-
-> Add screenshots here once you have them. Suggested layout:
->
-> | Popup | Options page |
-> |---|---|
-> | `![Popup](docs/popup.png)` | `![Options](docs/options.png)` |
 
 ---
 
@@ -138,17 +121,13 @@ You do not need to press anything for these — they happen in the background.
 
 ## How It Works
 
-### Overview
-
 The extension has three components:
 
-1. **Service worker** (`background/service-worker.js`) — the brain. Listens for events and performs history deletion.
-2. **Popup** (`popup/`) — quick UI to see configured count and trigger a full sweep.
+1. **Service worker** (`background/service-worker.js`) — listens for events and performs history deletion.
+2. **Popup** (`popup/`) — quick UI to see the configured count and trigger a full sweep.
 3. **Options page** (`options/`) — full UI to manage the domain list.
 
-### The sweep algorithm
-
-At its core, every cleanup is the same operation:
+Every cleanup runs the same operation:
 
 ```
 1. Read the configured sites from chrome.storage.local.
@@ -163,14 +142,13 @@ The only difference between an **incremental** and **full** sweep is the time ra
 - **Incremental** → `startTime = lastCleanup` (only new entries)
 - **Full** → `startTime = 0` (everything, all time)
 
-### Incremental vs. full
-
-| Aspect | Incremental | Full |
-|---|---|---|
-| Range | Since `lastCleanup` | Since epoch (all time) |
-| Cost | Small (few entries) | Larger (scans everything) |
-| Triggered by | Tab close, alarm, worker wake | Browser startup, popup button |
-| Purpose | Fast routine cleanup | Catch-all / on-demand nuke |
+| Trigger | Sweep type | What it deletes | When it runs |
+|---|---|---|---|
+| Worker wake | Incremental | New entries since `lastCleanup` | Every time the service worker spins up |
+| Browser start | **Full** | Everything for configured sites | Browser process starts |
+| Every 1 minute | Incremental | New entries since `lastCleanup` | Background alarm |
+| Any tab closes | Incremental | New entries since `lastCleanup` | Immediately |
+| Popup button | **Full** | Everything for configured sites | On click |
 
 ### Domain matching
 
@@ -184,7 +162,7 @@ function matchesDomain(url, domain) {
 }
 ```
 
-Examples with `reddit.com` configured:
+With `reddit.com` configured:
 
 | URL | Matches? |
 |---|---|
@@ -192,83 +170,9 @@ Examples with `reddit.com` configured:
 | `https://www.reddit.com/r/all` | ✅ |
 | `https://old.reddit.com/` | ✅ |
 | `https://notreddit.com/` | ❌ |
-| `https://reddit.com.evil.com/` | ❌ (hostname ends with `.evil.com`) |
+| `https://reddit.com.evil.com/` | ❌ |
 
-Note: the `endsWith("." + target)` check prevents false positives like `notreddit.com`.
-
-### The `lastCleanup` bookmark
-
-`lastCleanup` is a Unix epoch (ms) stored in `chrome.storage.local`. It marks the boundary between "already swept" and "not yet swept."
-
-- Incremental sweeps read it as `startTime`, then write `Date.now()` back.
-- Full sweeps ignore it as `startTime` (use `0`) but still write `Date.now()` back, so the next incremental sweep doesn't redo work.
-
-This is why the extension never re-scans the whole history on every tab close.
-
----
-
-## File Structure
-
-```
-brave-history-cleaner/
-├── manifest.json                 # Extension metadata & permissions
-├── background/
-│   └── service-worker.js         # All cleanup logic, event listeners
-├── options/
-│   ├── options.html              # Domain management page
-│   ├── options.css               # Dark theme styling
-│   └── options.js                # Add/remove domains, persistence
-└── popup/
-    ├── popup.html                # Popup UI
-    ├── popup.css                 # Popup styling
-    └── popup.js                  # Popup logic (status, clear button)
-```
-
----
-
-## Architecture
-
-### Event flow
-
-```
-┌──────────────────────┐
-│  Browser / System    │
-└──────────┬───────────┘
-           │
-           ├──► tabs.onRemoved          ─┐
-           ├──► alarms.onAlarm (1 min)  ─┤
-           ├──► runtime.onStartup       ─┼──► service-worker.js
-           ├──► runtime.onInstalled     ─┤      │
-           └──► runtime.onMessage       ─┘      │
-                                                 ▼
-                                    ┌────────────────────────┐
-                                    │ clearConfiguredHistory │
-                                    │  (since = range)       │
-                                    └────────────┬───────────┘
-                                                 │
-                          ┌──────────────────────┼──────────────────────┐
-                          ▼                      ▼                      ▼
-                 chrome.storage.local    chrome.history.search   chrome.history.deleteUrl
-```
-
-### Message protocol
-
-The popup talks to the service worker via `chrome.runtime.sendMessage`:
-
-**Request:**
-```js
-{ action: "clearHistory" }
-```
-
-**Response:**
-```js
-{ deleted: 17, message: "Removed 17 history entries." }
-```
-
-**Error response:**
-```js
-{ deleted: 0, message: "Error: <reason>" }
-```
+The `endsWith("." + target)` check prevents false positives like `notreddit.com`.
 
 ---
 
@@ -289,45 +193,6 @@ The extension does **not** request:
 
 ---
 
-## Storage Schema
-
-All state lives in `chrome.storage.local` under two keys:
-
-```js
-{
-  sites: ["reddit.com", "youtube.com"],  // Array<string>, sorted alphabetically
-  lastCleanup: 1790846325863              // number, Unix epoch (ms)
-}
-```
-
-| Key | Type | Description |
-|---|---|---|
-| `sites` | `string[]` | Normalized domains to clean |
-| `lastCleanup` | `number` | Timestamp of the last sweep |
-
-> The old `sessionStart` key from v1.0.0 is no longer used and can be safely ignored (or deleted).
-
----
-
-## Behavior Matrix
-
-| Trigger | Sweep type | What it deletes | When it runs |
-|---|---|---|---|
-| Worker wake | Incremental | New entries since `lastCleanup` | Every time the service worker spins up |
-| `runtime.onStartup` | **Full** | Everything for configured sites | Browser process starts |
-| `alarms.onAlarm` | Incremental | New entries since `lastCleanup` | Every 1 minute |
-| `tabs.onRemoved` | Incremental | New entries since `lastCleanup` | Any tab closes |
-| `runtime.onMessage` (`clearHistory`) | **Full** | Everything for configured sites | Popup button click |
-| `runtime.onInstalled` | None (seeds state) | — | Extension install/update |
-
-### Why this split?
-
-- **Tab close** and **periodic** run often, so they must be cheap → incremental.
-- **Browser startup** is the closest thing to a "browser closed" hook we can reliably detect, so it does the heavy full sweep. This gives the user the perception that "closing the browser cleaned everything."
-- **Popup button** is explicit user intent → do the maximum.
-
----
-
 ## Configuration & Tuning
 
 ### Change the periodic sweep frequency
@@ -338,17 +203,15 @@ In `background/service-worker.js`, find `ensureAlarm()`:
 chrome.alarms.create("cleanup", { periodInMinutes: 1 });
 ```
 
-Change `1` to any positive number (min is `0.5` in Chrome/Brave; `1` is the documented floor).
+Change `1` to any positive number. Lower = more responsive, higher = less CPU.
 
-**Trade-off:** lower = more responsive, higher = less CPU.
+### Full sweep on tab close
 
-### Change the sweep trigger set
+Replace `runIncrementalCleanup("tab-closed")` with `runFullCleanup("tab-closed")`. Not recommended — it's expensive.
 
-Want a full sweep on every tab close? Replace `runIncrementalCleanup("tab-closed")` with `runFullCleanup("tab-closed")`. Not recommended — it's expensive.
+### Add a whitelist
 
-### Add a whitelist (never clean these paths)
-
-Not implemented. If you need it, the place to add it is inside `clearConfiguredHistory` before the `deleteUrl` call.
+Not implemented. The place to add it is inside `clearConfiguredHistory` before the `deleteUrl` call.
 
 ---
 
@@ -356,151 +219,78 @@ Not implemented. If you need it, the place to add it is inside `clearConfiguredH
 
 ### "It's not deleting anything"
 
-1. **Reload the extension.** Go to `brave://extensions` → click ⟳ on the extension card.
-2. Open the service worker console: click **service worker** on the extension card.
+1. **Reload the extension** at `brave://extensions` (click ⟳ on the card).
+2. Open the service worker console (click **service worker** on the card).
 3. Look for red errors. Common ones:
-   - `chrome.alarms is undefined` → you forgot `"alarms"` in `manifest.json` or didn't reload.
-   - `chrome.storage.session is not available` → you're running old v1.0.0 code.
-4. Run this in the service worker console to verify basics:
+   - `chrome.alarms is undefined` → `"alarms"` missing from `manifest.json`, or you didn't reload.
+   - `chrome.storage.session is not available` → old v1.0.0 code still running.
 
-   ```js
-   chrome.storage.local.get().then(console.log)
-   ```
+Verify storage with:
 
-   You should see `sites` and `lastCleanup` — **not** `sessionStart`.
+```js
+chrome.storage.local.get().then(console.log)
+```
+
+You should see `sites` and `lastCleanup` — **not** `sessionStart`.
 
 ### "It deletes some sites but not others"
 
-Check the domain format in storage:
+Domains must be bare (`reddit.com`), not `https://reddit.com` or `www.reddit.com`. Check with:
 
 ```js
 chrome.storage.local.get().then(console.log)
 ```
 
-Domains must be bare (`reddit.com`), not `https://reddit.com` or `www.reddit.com`. If you see bad entries, clear them and re-add via the options page.
+If you see bad entries, remove and re-add via the options page.
 
 ### "The popup button says Removed 0"
 
-Either:
-
-- You have no history for the configured sites (expected — nothing to delete).
-- Your domain list is empty or malformed (check options page).
-- You haven't reloaded the extension since editing.
+Either there's nothing to delete (expected), your domain list is empty/malformed, or you haven't reloaded the extension.
 
 ### "Console shows `Promise {<pending>}`"
 
-That's not an error. `chrome.storage.local.get()` returns a Promise. Use:
-
-```js
-chrome.storage.local.get().then(console.log)
-```
-
-or:
-
-```js
-console.log(await chrome.storage.local.get())
-```
-
-### "Nothing happens when I close a tab"
-
-- The service worker might be asleep. It will wake on the `onRemoved` event, but only if it was registered before the worker was killed — it is, because it's at the top level of the script.
-- Check the worker console for `[History Cleaner] tab-closed (incremental): ...`.
+That's not an error — `chrome.storage.local.get()` returns a Promise. Use `.then(console.log)` or `await`.
 
 ### "The extension is using too much CPU"
 
-Lower the alarm frequency or disable the periodic sweep:
-
-```js
-// chrome.alarms.create("cleanup", { periodInMinutes: 1 });
-```
-
----
-
-## Development Notes
-
-### Why `chrome.storage.local` instead of `chrome.storage.session`?
-
-`chrome.storage.session` sounds right for transient data, but in MV3 it is **cleared when the service worker is terminated** (after ~30 seconds of idle). This makes it useless for tracking anything across events. We use `chrome.storage.local` and a timestamp.
-
-### Why not `chrome.runtime.onSuspend` for browser close?
-
-`onSuspend` exists but is **not guaranteed to fire**, and when it does, you have only a few hundred milliseconds before the worker is killed. Deleting history entries requires multiple async `chrome.history.deleteUrl` calls, which would often be cut off. The startup-sweep pattern is the standard, reliable workaround.
-
-### Why not `chrome.browsingData.remove`?
-
-It can't filter by domain. It either wipes everything or nothing. Targeted `chrome.history.deleteUrl` is the only way to remove specific URLs.
-
-### Why not batch deletion with `chrome.history.deleteRange`?
-
-`deleteRange` deletes **all** history inside a time window — it has no URL filter. It is not usable for per-domain deletion.
+Lower the alarm frequency or comment out the `chrome.alarms.create` call.
 
 ---
 
 ## Limitations
 
-- **No reliable "browser closing" event** in MV3. Cleanup happens on next startup instead. This is a platform limitation, not a bug.
-- **Startup sweep needs a startup event.** If the browser is launched and killed before `runtime.onStartup` fires, that session's history survives until the next full sweep.
-- **Matching is hostname-only.** URL paths are not considered. If you want `reddit.com/r/foo` cleaned but not `reddit.com/r/bar`, this extension can't do it.
-- **No import/export of the domain list.** You'd need to manually copy from `chrome.storage.local` via the service worker console.
-- **No sync across devices.** Uses `storage.local`, not `storage.sync`.
+- **No reliable "browser closing" event** in MV3. Cleanup happens on next startup instead. Platform limitation, not a bug.
+- **Matching is hostname-only.** URL paths aren't considered — you can't clean `reddit.com/r/foo` but keep `reddit.com/r/bar`.
+- **No import/export** of the domain list.
+- **No sync across devices** (uses `storage.local`, not `storage.sync`).
 
 ---
 
 ## FAQ
 
 **Q: Does this delete cookies, cache, or localStorage?**
-
-No. Only history entries matching the configured domains are removed. Cookies, cache, site data, passwords, bookmarks, and downloads are untouched.
+No. Only matching history entries are removed. Cookies, cache, site data, passwords, bookmarks, and downloads are untouched.
 
 **Q: Does this work in Chrome/Edge, not just Brave?**
-
-Yes. It's a standard MV3 extension. Tested primarily on Brave, but Chrome, Edge, and other Chromium browsers should work identically.
+Yes. Standard MV3 extension. Works on any Chromium-based browser.
 
 **Q: Does it work in Firefox?**
-
-Not out of the box. Firefox supports MV3 with some differences (`browser.*` namespace, and a different `background` manifest key). Would need minor porting.
+Not out of the box. Firefox MV3 differs slightly (`browser.*` namespace, different `background` manifest key). Would need minor porting.
 
 **Q: Does it delete history while I'm browsing, or only after?**
+Both. Tab close → immediate incremental sweep. Every minute → alarm sweep. Browser start → full reset.
 
-Both. Tab close triggers an immediate incremental sweep; the alarm catches anything that slips through every minute; startup does the full reset.
-
-**Q: Can it clean subdomains of a site?**
-
-Yes, automatically. Configuring `reddit.com` cleans `www.reddit.com`, `old.reddit.com`, `np.reddit.com`, etc.
-
-**Q: Can I whitelist a subdomain?**
-
-Not currently. Everything under the configured root is cleaned.
+**Q: Can it clean subdomains?**
+Yes, automatically. `reddit.com` cleans `www.reddit.com`, `old.reddit.com`, `np.reddit.com`, etc.
 
 **Q: Does it slow down my browser?**
-
-No. Incremental sweeps are milliseconds; the full sweep on startup runs once and takes a few hundred ms for a typical history size.
+No. Incremental sweeps are milliseconds; the full sweep on startup takes a few hundred ms for typical history sizes.
 
 **Q: Is my data sent anywhere?**
-
-No. Zero network calls. Everything is local to `chrome.storage.local` and the browser's history API.
+No. Zero network calls. Everything stays in `chrome.storage.local` and the browser's history API.
 
 **Q: How do I uninstall it?**
-
-`brave://extensions` → your extension → **Remove**. Your history already deleted stays deleted; your configured site list is discarded.
-
----
-
-## Changelog
-
-### v1.1.0 (current)
-
-- Complete rewrite of the service worker
-- Added automatic cleanup (tab close, periodic alarm, browser startup)
-- Switched from `chrome.storage.session` to `chrome.storage.local` for reliability
-- Added `alarms` permission
-- Incremental vs. full sweep distinction
-- Popup button now performs a full sweep
-- Added console logging for debugging
-
-### v1.0.0
-
-- Initial release: manual clear only, unreliable session tracking
+`brave://extensions` → your extension → **Remove**.
 
 ---
 
@@ -508,19 +298,13 @@ No. Zero network calls. Everything is local to `chrome.storage.local` and the br
 
 Contributions are welcome. Please open an issue first to discuss what you'd like to change.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, and [CHANGELOG.md](CHANGELOG.md) for version history.
 
 ---
 
 ## License
 
 [MIT](LICENSE) — do whatever you want.
-
----
-
-## Credits
-
-Built as a personal project. Uses only native browser APIs, no third-party libraries.
 
 ---
 
