@@ -1,6 +1,6 @@
 # 🧹 Brave History Cleaner
 
-> **Surgically auto-delete browsing history for specific domains — without touching cookies, cache, or anything else.**
+> Auto-delete browsing history for specific domains without touching cookies, cache, or anything else.
 
 [![Manifest V3](https://img.shields.io/badge/manifest-v3-blue)](https://developer.chrome.com/docs/extensions/mv3/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
@@ -25,37 +25,38 @@ A Manifest V3 browser extension that automatically removes browsing history for 
 9. [Limitations](#limitations)
 10. [FAQ](#faq)
 11. [Contributing](#contributing)
-12. [License](#license)
+12. [Credits](#credits)
+13. [License](#license)
 
 ---
 
 ## Why?
 
-Every existing "history cleaner" tool does one of two things:
+Most "history cleaner" tools do one of two things:
 
-1. Wipes **everything** on a schedule — heavy-handed, and you lose history you wanted to keep.
-2. Relies on **incognito mode** for specific sites — clunky, and it changes how the site behaves.
+1. Wipe **everything** on a schedule. Heavy-handed, and you lose history you actually wanted.
+2. Rely on **incognito mode** for specific sites. Clunky, and it changes how the site behaves.
 
-What I wanted was something in between: **"Keep my history, except for these specific sites, forever, automatically."**
+I wanted something in between. Keep my history, except for these specific sites, automatically, forever.
 
-That's what this extension does. It's surgical. It's automatic. It runs in the background. You configure it once and forget about it.
+That's what this extension tries to do. It's small. It runs in the background. You configure it once and forget about it.
 
-Everything else about your browser stays untouched — cookies, cache, passwords, bookmarks, downloads, other sites' history. Only the sites you name disappear.
+Everything else about your browser stays untouched: cookies, cache, passwords, bookmarks, downloads, and other sites' history. Only the domains you name disappear.
 
 ---
 
 ## Features
 
-- ✅ **Automatic cleanup** — runs on tab close, on a timer, and on browser startup
-- ✅ **On-demand full sweep** — one click in the popup nukes all configured-site history
-- ✅ **Surgical deletion** — only history entries, nothing else
-- ✅ **Subdomain matching** — `reddit.com` also matches `www.reddit.com`, `old.reddit.com`, etc.
-- ✅ **Domain normalization** — input like `https://www.Reddit.com/` is stored as `reddit.com`
-- ✅ **Import / export** — save your domain list to a `.txt` file or load one from disk
-- ✅ **Dark UI** — popup and options pages styled for readability
-- ✅ **No telemetry, no network calls** — everything runs locally
-- ✅ **MV3-safe** — uses `chrome.storage.local` and `chrome.alarms`, not the unreliable `chrome.storage.session` or `onSuspend`
-- ✅ **Zero dependencies** — pure JavaScript, no build step, no bundler
+- ✅ **Automatic cleanup** - runs on tab close, on a timer, and on browser startup
+- ✅ **On-demand full sweep** - one click in the popup clears all configured-site history
+- ✅ **Surgical deletion** - only history entries, nothing else
+- ✅ **Subdomain matching** - `reddit.com` also matches `www.reddit.com`, `old.reddit.com`, etc.
+- ✅ **Domain normalization** - input like `https://www.Reddit.com/` is stored as `reddit.com`
+- ✅ **Import / export** - save your domain list to a `.txt` file or load one from disk
+- ✅ **Dark UI** - popup and options pages styled for readability
+- ✅ **No telemetry, no network calls** - everything runs locally
+- ✅ **MV3-safe** - uses `chrome.storage.local` and `chrome.alarms`, not the unreliable `chrome.storage.session` or `onSuspend`
+- ✅ **Zero dependencies** - plain JavaScript, no build step, no bundler
 
 ---
 
@@ -81,7 +82,7 @@ After editing any file:
 2. Click the **reload arrow** (⟳) on the extension card.
 3. If you edited `service-worker.js`, click the **service worker** link on the card to inspect its console.
 
-> ⚠️ **Critical:** Manifest V3 caches the service worker aggressively. If you don't reload the extension after editing, the old code keeps running — this is the #1 cause of "my changes don't work."
+> ⚠️ **Heads up:** Manifest V3 caches the service worker aggressively. If you don't reload the extension after editing, the old code keeps running. This is the #1 reason changes seem to "not work."
 
 ---
 
@@ -111,13 +112,13 @@ Your configured site list can be saved to and loaded from a plain `.txt` file.
 
 **Export**
 
-1. Open the options page → scroll to **Import / Export**.
+1. Open the options page, scroll to **Import / Export**.
 2. Click **Export as .txt**.
 3. A file named `brave-history-cleaner-sites.txt` downloads, one domain per line, sorted alphabetically.
 
 **Import**
 
-1. Open the options page → scroll to **Import / Export**.
+1. Open the options page, scroll to **Import / Export**.
 2. Click **Import from .txt** and pick a file.
 3. Lines are normalized automatically:
    - `https://WWW.Reddit.com/r/all` → `reddit.com`
@@ -127,7 +128,7 @@ Your configured site list can be saved to and loaded from a plain `.txt` file.
 
 **Behavior**
 
-- Import **merges** with your existing list — it does not replace it.
+- Import **merges** with your existing list. It does not replace it.
 - Both operations are fully client-side. No network calls.
 - No new permissions are required.
 
@@ -142,7 +143,7 @@ Once sites are configured, cleanup happens automatically:
 | Browser starts | **Full sweep** (everything for configured sites) |
 | Service worker wakes | Incremental sweep |
 
-You do not need to press anything for these — they happen in the background.
+You don't need to press anything for these. They happen in the background.
 
 ---
 
@@ -150,9 +151,9 @@ You do not need to press anything for these — they happen in the background.
 
 The extension has three components:
 
-1. **Service worker** (`background/service-worker.js`) — listens for events and performs history deletion.
-2. **Popup** (`popup/`) — quick UI to see the configured count and trigger a full sweep.
-3. **Options page** (`options/`) — full UI to manage the domain list.
+1. **Service worker** (`background/service-worker.js`) - listens for events and performs history deletion.
+2. **Popup** (`popup/`) - quick UI to see the configured count and trigger a full sweep.
+3. **Options page** (`options/`) - full UI to manage the domain list.
 
 Every cleanup runs the same operation:
 
@@ -214,9 +215,9 @@ The `endsWith("." + target)` check prevents false positives like `notreddit.com`
 
 The extension does **not** request:
 
-- `cookies` — we never touch cookies
-- `browsingData` — we use targeted `deleteUrl`, not bulk clearing
-- `<all_urls>` host permissions — we don't inject scripts into pages
+- `cookies` - it never touches cookies
+- `browsingData` - it uses targeted `deleteUrl`, not bulk clearing
+- `<all_urls>` host permissions - it doesn't inject scripts into pages
 
 ---
 
@@ -234,7 +235,7 @@ Change `1` to any positive number. Lower = more responsive, higher = less CPU.
 
 ### Full sweep on tab close
 
-Replace `runIncrementalCleanup("tab-closed")` with `runFullCleanup("tab-closed")`. Not recommended — it's expensive.
+Replace `runIncrementalCleanup("tab-closed")` with `runFullCleanup("tab-closed")`. Not recommended, it's expensive.
 
 ### Add a whitelist
 
@@ -258,7 +259,7 @@ Verify storage with:
 chrome.storage.local.get().then(console.log)
 ```
 
-You should see `sites` and `lastCleanup` — **not** `sessionStart`.
+You should see `sites` and `lastCleanup`, **not** `sessionStart`.
 
 ### "It deletes some sites but not others"
 
@@ -272,11 +273,11 @@ If you see bad entries, remove and re-add via the options page.
 
 ### "The popup button says Removed 0"
 
-Either there's nothing to delete (expected), your domain list is empty/malformed, or you haven't reloaded the extension.
+Either there's nothing to delete (expected), your domain list is empty or malformed, or you haven't reloaded the extension.
 
 ### "Console shows `Promise {<pending>}`"
 
-That's not an error — `chrome.storage.local.get()` returns a Promise. Use `.then(console.log)` or `await`.
+That's not an error. `chrome.storage.local.get()` returns a Promise. Use `.then(console.log)` or `await`.
 
 ### "The extension is using too much CPU"
 
@@ -286,10 +287,10 @@ Lower the alarm frequency or comment out the `chrome.alarms.create` call.
 
 ## Limitations
 
-- **No reliable "browser closing" event** in MV3. Cleanup happens on next startup instead. Platform limitation, not a bug.
-- **Matching is hostname-only.** URL paths aren't considered — you can't clean `reddit.com/r/foo` but keep `reddit.com/r/bar`.
-- **Import always merges** — there's no "replace existing list" option yet.
-- **No sync across devices** (uses `storage.local`, not `storage.sync`).
+- **No reliable "browser closing" event** in MV3. Cleanup happens on next startup instead. This is a platform limitation, not a bug.
+- **Matching is hostname-only.** URL paths aren't considered, so you can't clean `reddit.com/r/foo` but keep `reddit.com/r/bar`.
+- **Import always merges.** There's no "replace existing list" option yet.
+- **No sync across devices.** It uses `storage.local`, not `storage.sync`.
 
 ---
 
@@ -299,23 +300,22 @@ Lower the alarm frequency or comment out the `chrome.alarms.create` call.
 No. Only matching history entries are removed. Cookies, cache, site data, passwords, bookmarks, and downloads are untouched.
 
 **Q: Does this work in Chrome/Edge, not just Brave?**
-Yes. Standard MV3 extension. Works on any Chromium-based browser.
+Yes. It's a standard MV3 extension. Should work on any Chromium-based browser.
 
 **Q: Does it work in Firefox?**
 Not out of the box. Firefox MV3 differs slightly (`browser.*` namespace, different `background` manifest key). Would need minor porting.
 
 **Q: Does it delete history while I'm browsing, or only after?**
-Both. Tab close → immediate incremental sweep. Every minute → alarm sweep. Browser start → full reset.
+Both. Tab close triggers an immediate incremental sweep. Every minute, an alarm sweep runs. Browser start does a full reset.
 
 **Q: Can it clean subdomains?**
 Yes, automatically. `reddit.com` cleans `www.reddit.com`, `old.reddit.com`, `np.reddit.com`, etc.
 
 **Q: Can I move my site list to another machine?**
-
 Yes. Use **Export as .txt** on machine A, then **Import from .txt** on machine B. The file is plain text, one domain per line.
 
 **Q: Does it slow down my browser?**
-No. Incremental sweeps are milliseconds; the full sweep on startup takes a few hundred ms for typical history sizes.
+No. Incremental sweeps are milliseconds. The full sweep on startup takes a few hundred ms for typical history sizes.
 
 **Q: Is my data sent anywhere?**
 No. Zero network calls. Everything stays in `chrome.storage.local` and the browser's history API.
@@ -333,12 +333,20 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines, and [CHANGELOG.md](CHANGE
 
 ---
 
+## Credits
+
+I built this for personal use and figured I'd put it on GitHub in case it's useful to anyone else. It's a small project, but I did use DeepSeek as a coding assistant while writing the service worker, the import/export logic, and parts of the options page. The architecture decisions, testing, and the parts specific to my use case are mine. The AI help was mostly for boilerplate and catching edge cases I would have missed. If you spot anything that looks off, open an issue and I'll take a look.
+
+Thanks to anyone who tries it out.
+
+---
+
 ## License
 
-[MIT](LICENSE) — do whatever you want.
+[MIT](LICENSE). Do whatever you want with it.
 
 ---
 
 ## If you find this useful
 
-Give it a ⭐ — it helps other people find it.
+Give it a ⭐ if you feel like it. Helps other people find it.
