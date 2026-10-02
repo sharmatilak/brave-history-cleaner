@@ -2,6 +2,9 @@ const form = document.getElementById("add-form");
 const input = document.getElementById("domain");
 const list = document.getElementById("sites");
 const status = document.getElementById("status");
+const exportButton = document.getElementById("export");
+const importButton = document.getElementById("import");
+const importFile = document.getElementById("import-file");
 
 function normalizeDomain(domain) {
   return domain
@@ -55,6 +58,8 @@ async function render() {
   }
 }
 
+// ---- Add a single domain ----
+
 form.addEventListener("submit", async event => {
   event.preventDefault();
 
@@ -80,6 +85,71 @@ form.addEventListener("submit", async event => {
   input.value = "";
   status.textContent = `Added ${domain}.`;
   await render();
+});
+
+// ---- Export sites to a .txt file ----
+
+exportButton.addEventListener("click", async () => {
+  const sites = await getSites();
+
+  if (!sites.length) {
+    status.textContent = "Nothing to export — no sites configured.";
+    return;
+  }
+
+  const content = sites.join("\n") + "\n";
+  const blob = new Blob([content], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "brave-history-cleaner-sites.txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+
+  URL.revokeObjectURL(url);
+
+  status.textContent = `Exported ${sites.length} site${sites.length === 1 ? "" : "s"}.`;
+});
+
+// ---- Import sites from a .txt file ----
+
+importButton.addEventListener("click", () => {
+  importFile.click();
+});
+
+importFile.addEventListener("change", async () => {
+  const file = importFile.files?.[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+
+    const incoming = text
+      .split(/\r?\n/)
+      .map(normalizeDomain)
+      .filter(d => d && d.includes("."));
+
+    const existing = await getSites();
+    const merged = Array.from(new Set([...existing, ...incoming])).sort();
+
+    await saveSites(merged);
+    await render();
+
+    const added = merged.length - existing.length;
+    const skipped = incoming.length - added;
+
+    status.textContent =
+      `Imported ${added} new site${added === 1 ? "" : "s"}` +
+      (skipped > 0
+        ? `, skipped ${skipped} duplicate or invalid line${skipped === 1 ? "" : "s"}.`
+        : ".");
+  } catch (error) {
+    status.textContent = `Import failed: ${error.message}`;
+  } finally {
+    importFile.value = ""; // allow re-importing the same file
+  }
 });
 
 render();
