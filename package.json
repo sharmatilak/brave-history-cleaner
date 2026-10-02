@@ -1,6 +1,6 @@
 {
   "name": "brave-history-cleaner",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Manifest V3 browser extension that surgically auto-deletes browsing history for a user-defined list of domains.",
   "private": true,
   "license": "MIT",
