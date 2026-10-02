@@ -51,6 +51,7 @@ Everything else about your browser stays untouched — cookies, cache, passwords
 - ✅ **Surgical deletion** — only history entries, nothing else
 - ✅ **Subdomain matching** — `reddit.com` also matches `www.reddit.com`, `old.reddit.com`, etc.
 - ✅ **Domain normalization** — input like `https://www.Reddit.com/` is stored as `reddit.com`
+- ✅ **Import / export** — save your domain list to a `.txt` file or load one from disk
 - ✅ **Dark UI** — popup and options pages styled for readability
 - ✅ **No telemetry, no network calls** — everything runs locally
 - ✅ **MV3-safe** — uses `chrome.storage.local` and `chrome.alarms`, not the unreliable `chrome.storage.session` or `onSuspend`
@@ -103,6 +104,32 @@ After editing any file:
 
 - Click the extension icon → **CLEAR ALL HISTORY**.
 - This deletes **every** history entry for **all** configured sites, all time.
+
+### Import / export
+
+Your configured site list can be saved to and loaded from a plain `.txt` file.
+
+**Export**
+
+1. Open the options page → scroll to **Import / Export**.
+2. Click **Export as .txt**.
+3. A file named `brave-history-cleaner-sites.txt` downloads, one domain per line, sorted alphabetically.
+
+**Import**
+
+1. Open the options page → scroll to **Import / Export**.
+2. Click **Import from .txt** and pick a file.
+3. Lines are normalized automatically:
+   - `https://WWW.Reddit.com/r/all` → `reddit.com`
+   - `REDDIT.COM:443` → `reddit.com`
+4. Duplicates against your existing list are skipped.
+5. Blank lines and lines without a `.` are ignored.
+
+**Behavior**
+
+- Import **merges** with your existing list — it does not replace it.
+- Both operations are fully client-side. No network calls.
+- No new permissions are required.
 
 ### Automatic cleanup
 
@@ -261,7 +288,7 @@ Lower the alarm frequency or comment out the `chrome.alarms.create` call.
 
 - **No reliable "browser closing" event** in MV3. Cleanup happens on next startup instead. Platform limitation, not a bug.
 - **Matching is hostname-only.** URL paths aren't considered — you can't clean `reddit.com/r/foo` but keep `reddit.com/r/bar`.
-- **No import/export** of the domain list.
+- **Import always merges** — there's no "replace existing list" option yet.
 - **No sync across devices** (uses `storage.local`, not `storage.sync`).
 
 ---
@@ -282,6 +309,10 @@ Both. Tab close → immediate incremental sweep. Every minute → alarm sweep. B
 
 **Q: Can it clean subdomains?**
 Yes, automatically. `reddit.com` cleans `www.reddit.com`, `old.reddit.com`, `np.reddit.com`, etc.
+
+**Q: Can I move my site list to another machine?**
+
+Yes. Use **Export as .txt** on machine A, then **Import from .txt** on machine B. The file is plain text, one domain per line.
 
 **Q: Does it slow down my browser?**
 No. Incremental sweeps are milliseconds; the full sweep on startup takes a few hundred ms for typical history sizes.
