@@ -4,7 +4,7 @@
 
 [![Manifest V3](https://img.shields.io/badge/manifest-v3-blue)](https://developer.chrome.com/docs/extensions/mv3/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-green)](LICENSE)
-[![Platform](https://img.shields.io/badge/platform-Brave%20%7C%20Chrome%20%7C%20Edge-orange)]()
+[![Platform](https://img.shields.io/badge/platform-Brave%20%7C%20Chrome%20%7C%20Edge%20%7C%20Firefox-orange)]()
 [![No Telemetry](https://img.shields.io/badge/telemetry-none-success)]()
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)]()
 
@@ -47,7 +47,7 @@ Everything else about your browser stays untouched — cookies, cache, passwords
 ## Features
 
 - ✅ **Automatic cleanup** — runs on tab close, on a timer, and on browser startup
-- ✅ **On-demand full sweep** — one click in the popup nukes all configured-site history
+- ✅ **On-demand full sweep** — one click in the popup clears all configured-site history
 - ✅ **Surgical deletion** — only history entries, nothing else
 - ✅ **Subdomain matching** — `reddit.com` also matches `www.reddit.com`, `old.reddit.com`, etc.
 - ✅ **Domain normalization** — input like `https://www.Reddit.com/` is stored as `reddit.com`
@@ -72,6 +72,17 @@ Everything else about your browser stays untouched — cookies, cache, passwords
 4. Click **Load unpacked**.
 5. Select the folder containing `manifest.json`.
 6. The extension icon should appear in your toolbar.
+
+### From source (Firefox, temporary)
+
+1. Download or clone this repository to a folder on your computer.
+2. Open Firefox and go to `about:debugging#/runtime/this-firefox`.
+3. Click **Load Temporary Add-on**.
+4. Select the `manifest.json` file in the extension folder.
+5. The extension loads and stays active until you close Firefox.
+
+> Firefox doesn't allow permanent installation of unsigned extensions during development. For permanent use, the add-on needs to be signed through [addons.mozilla.org](https://addons.mozilla.org) (free). Temporary loading is fine for testing.
+
 
 ### Updating after code changes
 
@@ -302,7 +313,7 @@ No. Only matching history entries are removed. Cookies, cache, site data, passwo
 Yes. Standard MV3 extension. Works on any Chromium-based browser.
 
 **Q: Does it work in Firefox?**
-Not out of the box. Firefox MV3 differs slightly (`browser.*` namespace, different `background` manifest key). Would need minor porting.
+Yes. Firefox MV3 uses the same `chrome.*` API namespace, so the JavaScript runs unchanged. The manifest includes both `service_worker` (for Chromium) and `scripts` (for Firefox) under `background`, plus a `browser_specific_settings` block with a stable extension ID. Load it via `about:debugging` for testing, or install the signed `.xpi` from the release page for permanent use.
 
 **Q: Does it delete history while I'm browsing, or only after?**
 Both. Tab close → immediate incremental sweep. Every minute → alarm sweep. Browser start → full reset.

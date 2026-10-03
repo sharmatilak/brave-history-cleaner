@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "Brave History Cleaner",
-  "version": "1.2.0",
-  "description": "Automatically remove browsing history for selected websites.",
+  "version": "1.2.1",
+  "description": "Automatically remove browsing history for selected websites without touching cookies, cache, or other site data.",
   "permissions": [
     "history",
     "storage",
@@ -10,11 +10,21 @@
     "alarms"
   ],
   "background": {
-    "service_worker": "background/service-worker.js"
+    "service_worker": "background/service-worker.js",
+    "scripts": ["background/service-worker.js"]
   },
   "action": {
     "default_popup": "popup/popup.html",
     "default_title": "Brave History Cleaner"
   },
-  "options_page": "options/options.html"
+  "options_page": "options/options.html",
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "brave-history-cleaner@sharmatilak.dev",
+      "strict_min_version": "142.0",
+      "data_collection_permissions": {
+        "required": ["none"]
+      }
+    }
+  }
 }
