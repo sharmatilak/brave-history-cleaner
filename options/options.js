@@ -1,7 +1,8 @@
 const form = document.getElementById("add-form");
 const input = document.getElementById("domain");
 const list = document.getElementById("sites");
-const status = document.getElementById("status");
+const formStatus = document.getElementById("form-status");
+const ioStatus = document.getElementById("io-status");
 const exportButton = document.getElementById("export");
 const importButton = document.getElementById("import");
 const importFile = document.getElementById("import-file");
@@ -66,14 +67,14 @@ form.addEventListener("submit", async event => {
   const domain = normalizeDomain(input.value);
 
   if (!domain || !domain.includes(".")) {
-    status.textContent = "Enter a valid domain, e.g. reddit.com";
+    formStatus.textContent = "Enter a valid domain, e.g. reddit.com";
     return;
   }
 
   const sites = await getSites();
 
   if (sites.includes(domain)) {
-    status.textContent = "That domain is already configured.";
+    formStatus.textContent = "That domain is already configured.";
     return;
   }
 
@@ -83,7 +84,7 @@ form.addEventListener("submit", async event => {
   await saveSites(sites);
 
   input.value = "";
-  status.textContent = `Added ${domain}.`;
+  formStatus.textContent = `Added ${domain}.`;
   await render();
 });
 
@@ -93,7 +94,7 @@ exportButton.addEventListener("click", async () => {
   const sites = await getSites();
 
   if (!sites.length) {
-    status.textContent = "Nothing to export — no sites configured.";
+    ioStatus.textContent = "Nothing to export - no sites configured.";
     return;
   }
 
@@ -110,7 +111,7 @@ exportButton.addEventListener("click", async () => {
 
   URL.revokeObjectURL(url);
 
-  status.textContent = `Exported ${sites.length} site${sites.length === 1 ? "" : "s"}.`;
+  ioStatus.textContent = `Exported ${sites.length} site${sites.length === 1 ? "" : "s"}.`;
 });
 
 // ---- Import sites from a .txt file ----
@@ -140,13 +141,13 @@ importFile.addEventListener("change", async () => {
     const added = merged.length - existing.length;
     const skipped = incoming.length - added;
 
-    status.textContent =
+    ioStatus.textContent =
       `Imported ${added} new site${added === 1 ? "" : "s"}` +
       (skipped > 0
         ? `, skipped ${skipped} duplicate or invalid line${skipped === 1 ? "" : "s"}.`
         : ".");
   } catch (error) {
-    status.textContent = `Import failed: ${error.message}`;
+    ioStatus.textContent = `Import failed: ${error.message}`;
   } finally {
     importFile.value = ""; // allow re-importing the same file
   }
