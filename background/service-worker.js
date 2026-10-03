@@ -1,3 +1,12 @@
+// Firefox MV3 uses event pages, Chromium MV3 uses service workers.
+// Both expose the same chrome.* APIs, but this guard makes it obvious
+// if a future feature uses something one browser doesn't have.
+for (const api of ["history", "storage", "tabs", "alarms"]) {
+  if (!chrome[api]) {
+    console.error(`[History Cleaner] Required API missing: chrome.${api}`);
+  }
+}
+
 const DEFAULTS = {
   sites: [],
   lastCleanup: 0
