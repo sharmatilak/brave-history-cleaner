@@ -82,7 +82,9 @@ Everything else about your browser stays untouched: cookies, cache, passwords, b
 4. Select the `manifest.json` file in the extension folder.
 5. The extension loads and stays active until you close Firefox.
 
-> Firefox doesn't allow permanent installation of unsigned extensions during development. For permanent use, the add-on needs to be signed through [addons.mozilla.org](https://addons.mozilla.org) (free). Temporary loading is fine for testing.
+> **Note:** The signed `.xpi` for v1.2.1 is currently in Mozilla's review queue.
+> It will be attached to the [v1.2.1 release](https://github.com/sharmatilak/brave-history-cleaner/releases/tag/v1.2.1)
+> once approved. For now, use the temporary-load method above to test in Firefox.
 
 
 ### Updating after code changes
