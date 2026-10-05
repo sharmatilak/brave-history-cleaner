@@ -296,6 +296,26 @@ That's not an error. `chrome.storage.local.get()` returns a Promise. Use `.then(
 
 Lower the alarm frequency or comment out the `chrome.alarms.create` call.
 
+### "I deleted a site but it still appears in address bar suggestions"
+
+`chrome.history.deleteUrl` removes the history entry, but address bar
+suggestions come from a separate autocomplete cache that isn't cleared by
+the history API. This affects both Chromium browsers (Brave, Chrome, Edge)
+and Firefox.
+
+To remove a stubborn suggestion:
+
+1. Type the site in the address bar.
+2. Highlight the suggestion with the arrow keys.
+3. Press `Shift + Delete` (Windows/Linux) or `Shift + Fn + Delete` (macOS).
+
+In Firefox, suggestions may also come from bookmarks or currently open tabs.
+If a site keeps appearing after removing it from history, check whether it's
+bookmarked or open in another tab.
+
+Neither browser exposes an API to clear individual omnibox entries, so the
+extension can't do this automatically.
+
 ---
 
 ## Limitations
@@ -310,30 +330,39 @@ Lower the alarm frequency or comment out the `chrome.alarms.create` call.
 ## FAQ
 
 **Q: Does this delete cookies, cache, or localStorage?**
+
 No. Only matching history entries are removed. Cookies, cache, site data, passwords, bookmarks, and downloads are untouched.
 
 **Q: Does this work in Chrome/Edge, not just Brave?**
+
 Yes. It's a standard MV3 extension. Should work on any Chromium-based browser.
 
 **Q: Does it work in Firefox?**
+
 Yes. Firefox MV3 uses the same `chrome.*` API namespace, so the JavaScript runs unchanged. The manifest includes both `service_worker` (for Chromium) and `scripts` (for Firefox) under `background`, plus a `browser_specific_settings` block with a stable extension ID. Load it via `about:debugging` for testing, or install the signed `.xpi` from the release page for permanent use.
 
 **Q: Does it delete history while I'm browsing, or only after?**
+
 Both. Tab close triggers an immediate incremental sweep. Every minute, an alarm sweep runs. Browser start does a full reset.
 
 **Q: Can it clean subdomains?**
+
 Yes, automatically. `reddit.com` cleans `www.reddit.com`, `old.reddit.com`, `np.reddit.com`, etc.
 
 **Q: Can I move my site list to another machine?**
+
 Yes. Use **Export as .txt** on machine A, then **Import from .txt** on machine B. The file is plain text, one domain per line.
 
 **Q: Does it slow down my browser?**
+
 No. Incremental sweeps are milliseconds. The full sweep on startup takes a few hundred ms for typical history sizes.
 
 **Q: Is my data sent anywhere?**
+
 No. Zero network calls. Everything stays in `chrome.storage.local` and the browser's history API.
 
 **Q: How do I uninstall it?**
+
 `brave://extensions` → your extension → **Remove**.
 
 ---
