@@ -17,27 +17,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-## [1.2.2] - 2026-10-04
-
-### Changed
-
-- Moved status messages in the options page so they appear directly below
-  the input they relate to. Adding a domain now shows feedback under the
-  add form; import/export feedback appears under the import/export buttons.
-- Replaced remaining em dashes with hyphens in user-facing strings.
-
-### Notes
-
-- No changes to the cleanup logic, permissions, or storage schema.
-
----
-
-## [1.2.1] - 2026-10-03
+## [1.2.2] - 2026-10-06
 
 ### Added
 
 - **Firefox support.** The extension now installs in Firefox (MV3) alongside
-  Brave, Chrome, and Edge. No JavaScript changes were needed — Firefox aliases
+  Brave, Chrome, and Edge. No JavaScript changes were needed - Firefox aliases
   the `chrome.*` namespace to `browser.*`, so the history, storage, alarms, and
   tabs code runs unchanged.
 - `background.scripts` key in the manifest, listed alongside the existing
@@ -54,9 +39,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
-- `manifest.json` version bumped to `1.2.1`
+- Moved status messages in the options page so they appear directly below
+  the input they relate to. Adding a domain now shows feedback under the
+  add form; import/export feedback appears under the import/export buttons.
+- Replaced remaining em dashes with hyphens in user-facing strings.
+- `manifest.json` version bumped to `1.2.2`.
 - README platform badge now lists Firefox; added a Firefox installation
-  subsection; updated the Firefox FAQ entry
+  subsection; updated the Firefox FAQ entry.
 
 ### Notes
 
@@ -70,17 +59,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
-- **Import sites from a `.txt` file** — one domain per line, pick a file and
+- **Import sites from a `.txt` file** - one domain per line, pick a file and
   merge it into your existing list. Lines are normalized (lowercased, stripped
   of `https://`, `www.`, paths, and ports). Invalid lines and duplicates are
   skipped automatically.
-- **Export sites to a `.txt` file** — download your current domain list as
+- **Export sites to a `.txt` file** - download your current domain list as
   `brave-history-cleaner-sites.txt`, one domain per line, sorted.
 - New **Import / Export** section on the options page with two buttons.
 
 ### Changed
 
-- No behavioral changes to the cleanup logic — sweeps, triggers, and matching
+- No behavioral changes to the cleanup logic - sweeps, triggers, and matching
   are identical to v1.1.0.
 
 ### Notes
@@ -138,13 +127,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - `chrome.storage.session` gets cleared when the MV3 service worker terminates,
   so session tracking was unreliable
-- No automatic cleanup — required pressing the popup button each time
+- No automatic cleanup - required pressing the popup button each time
 - `sessionStart` was set once at install time and never reset
 
 ---
 
 [Unreleased]: https://github.com/sharmatilak/brave-history-cleaner/compare/v1.2.2...HEAD
-[1.2.2]: https://github.com/sharmatilak/brave-history-cleaner/compare/v1.2.1...v1.2.2
-[1.2.1]: https://github.com/sharmatilak/brave-history-cleaner/compare/v1.2.0...v1.2.1
+[1.2.2]: https://github.com/sharmatilak/brave-history-cleaner/compare/v1.2.0...v1.2.2
 [1.2.0]: https://github.com/sharmatilak/brave-history-cleaner/compare/v1.1.0...v1.2.0
-
