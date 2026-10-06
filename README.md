@@ -74,18 +74,21 @@ Everything else about your browser stays untouched: cookies, cache, passwords, b
 5. Select the folder containing `manifest.json`.
 6. The extension icon should appear in your toolbar.
 
+### Install in Firefox
+
+**Recommended:** install from [addons.mozilla.org](https://addons.mozilla.org/en-US/firefox/addon/brave-history-cleaner/).
+
+**From file:** download `brave-history-cleaner-v1.2.2.xpi` from the [latest release](https://github.com/sharmatilak/brave-history-cleaner/releases/latest), then open `about:addons` → gear icon (⚙) → **Install Add-on From File** → pick the `.xpi`.
+
 ### From source (Firefox, temporary)
+
+Use this only for testing local changes. The temporary add-on disappears when Firefox closes.
 
 1. Download or clone this repository to a folder on your computer.
 2. Open Firefox and go to `about:debugging#/runtime/this-firefox`.
 3. Click **Load Temporary Add-on**.
 4. Select the `manifest.json` file in the extension folder.
 5. The extension loads and stays active until you close Firefox.
-
-> **Note:** The signed `.xpi` for v1.2.1 is currently in Mozilla's review queue.
-> It will be attached to the [v1.2.1 release](https://github.com/sharmatilak/brave-history-cleaner/releases/tag/v1.2.1)
-> once approved. For now, use the temporary-load method above to test in Firefox.
-
 
 ### Updating after code changes
 
