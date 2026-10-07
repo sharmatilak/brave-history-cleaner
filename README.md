@@ -1,4 +1,4 @@
-# 🧹 Brave History Cleaner
+# Brave History Cleaner
 
 > Auto-delete browsing history for specific domains without touching cookies, cache, or anything else.
 
@@ -9,6 +9,12 @@
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen)]()
 
 A Manifest V3 browser extension that automatically removes browsing history for a user-defined list of websites, without touching cookies, cache, passwords, bookmarks, or downloads.
+
+---
+
+<div align="center">
+  <img src="assets/icon.png" alt="Logo" width="200">
+</div>
 
 ---
 
