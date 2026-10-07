@@ -17,6 +17,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [1.2.3] - 2026-10-07
+
+### Changed
+
+- Added properly sized icon files (16×16, 48×48, 128×128) and pointed the
+  manifest at them. Previously all sizes referenced a single oversized PNG,
+  which caused the toolbar icon to render poorly or fall back to the default
+  in some browsers.
+- `manifest.json` version bumped to `1.2.3`.
+
+---
+
 ## [1.2.2] - 2026-10-06
 
 ### Added
@@ -132,6 +144,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
-[Unreleased]: https://github.com/sharmatilak/brave-history-cleaner/compare/v1.2.2...HEAD
+[Unreleased]: https://github.com/sharmatilak/brave-history-cleaner/compare/v1.2.3...HEAD
+[1.2.3]: https://github.com/sharmatilak/brave-history-cleaner/compare/v1.2.2...v1.2.3
 [1.2.2]: https://github.com/sharmatilak/brave-history-cleaner/compare/v1.2.0...v1.2.2
 [1.2.0]: https://github.com/sharmatilak/brave-history-cleaner/compare/v1.1.0...v1.2.0
