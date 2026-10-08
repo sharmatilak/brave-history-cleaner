@@ -19,7 +19,20 @@
       every minute in the background, and fully on browser startup. Use the
       popup button for an on-demand full sweep.
     </p>
+    <h2>Import / Export</h2>
+    <p class="intro">
+      Export your list to a <code>.txt</code> file (one domain per line), or import
+      one. Lines are normalized (lowercased, stripped of <code>https://</code>,
+      <code>www.</code>, paths, and ports) and duplicates are removed.
+    </p>
 
+    <div class="io-row">
+      <button id="export" type="button">Export as .txt</button>
+      <button id="import" type="button">Import from .txt</button>
+      <input id="import-file" type="file" accept=".txt,text/plain" hidden>
+    </div>
+
+    <p id="io-status" class="status"></p>
     <form id="add-form">
       <input
         id="domain"
@@ -36,20 +49,6 @@
     <h2>Configured websites</h2>
     <ul id="sites"></ul>
 
-    <h2>Import / Export</h2>
-    <p class="intro">
-      Export your list to a <code>.txt</code> file (one domain per line), or import
-      one. Lines are normalized (lowercased, stripped of <code>https://</code>,
-      <code>www.</code>, paths, and ports) and duplicates are removed.
-    </p>
-
-    <div class="io-row">
-      <button id="export" type="button">Export as .txt</button>
-      <button id="import" type="button">Import from .txt</button>
-      <input id="import-file" type="file" accept=".txt,text/plain" hidden>
-    </div>
-
-    <p id="io-status" class="status"></p>
   </main>
 
   <script src="options.js"></script>
