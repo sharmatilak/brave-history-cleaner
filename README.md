@@ -22,17 +22,18 @@ A Manifest V3 browser extension that automatically removes browsing history for 
 
 1. [Why?](#why)
 2. [Features](#features)
-3. [Installation](#installation)
-4. [Usage](#usage)
-5. [How It Works](#how-it-works)
-6. [Permissions Explained](#permissions-explained)
-7. [Configuration & Tuning](#configuration--tuning)
-8. [Troubleshooting](#troubleshooting)
-9. [Limitations](#limitations)
-10. [FAQ](#faq)
-11. [Contributing](#contributing)
-12. [Credits](#credits)
-13. [License](#license)
+3. [Screenshots](#screenshots)
+4. [Installation](#installation)
+5. [Usage](#usage)
+6. [How It Works](#how-it-works)
+7. [Permissions Explained](#permissions-explained)
+8. [Configuration & Tuning](#configuration--tuning)
+9. [Troubleshooting](#troubleshooting)
+10. [Limitations](#limitations)
+11. [FAQ](#faq)
+12. [Contributing](#contributing)
+13. [Credits](#credits)
+14. [License](#license)
 
 ---
 
@@ -63,6 +64,22 @@ Everything else about your browser stays untouched: cookies, cache, passwords, b
 - ✅ **No telemetry, no network calls** - everything runs locally
 - ✅ **MV3-safe** - uses `chrome.storage.local` and `chrome.alarms`, not the unreliable `chrome.storage.session` or `onSuspend`
 - ✅ **Zero dependencies** - plain JavaScript, no build step, no bundler
+
+---
+
+## Screenshots
+
+**Popup** - quick status and the manual "clear all" button.
+
+![Popup](docs/popup.png)
+
+**Options page** - manage your domain list, import and export as `.txt`.
+
+![Options page](docs/options.png)
+
+**History cleared** - the site is gone from history, but cookies and logins are untouched.
+
+![History cleared](docs/history-cleared.png)
 
 ---
 
